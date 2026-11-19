@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
+
+    <title>❤️ Python Heart Animation</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: white;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            inset: 0;
+        }
+
+        .content {
+            position: absolute;
+            bottom: 8%;
+            width: 100%;
+            text-align: center;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .content h1 {
+            font-size: clamp(22px, 5vw, 38px);
+            color: #ff1744;
+            text-shadow: 0 0 15px #ff1744,
+                         0 0 30px #ff1744;
+            letter-spacing: 2px;
+            animation: glow 2s infinite alternate;
+        }
+
+        .content p {
+            color: #aaa;
+            font-size: 13px;
+            margin-top: 12px;
+            letter-spacing: 2px;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #ff1744;
+            }
+            to {
+                text-shadow: 0 0 25px #ff1744,
+                             0 0 45px #ff1744;
+            }
+        }
+
+        .credit {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: #555;
+            font-size: 12px;
+            letter-spacing: 2px;
+            z-index: 2;
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="heartCanvas"></canvas>
+
+    <div class="credit">
+        MADE WITH ❤️ USING JAVASCRIPT
+    </div>
+
+    <div class="content">
+        <h1>❤️ A HEART MADE WITH CODE ❤️</h1>
+        <p>MATHEMATICS + PROGRAMMING = MAGIC</p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("heartCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let width, height;
+        let centerX, centerY;
+        let scale;
+        let progress = 0;
+        let points = [];
+
+        // Canvas responsive setup
+        function resizeCanvas() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+            width = window.innerWidth;
+            height = window.innerHeight;
+
+            canvas.width = width * dpr;
+            canvas.height = height * dpr;
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+            centerX = width / 2;
+            centerY = height / 2 - 25;
+
+            scale = Math.min(width, height) / 38;
+
+            generateHeart();
+        }
+
+        // Mathematical heart X coordinate
+        function heartX(k) {
+            return 15 * Math.pow(Math.sin(k), 3);
+        }
+
+        // Mathematical heart Y coordinate
+        function heartY(k) {
+            return 12 * Math.cos(k)
+                - 5 * Math.cos(2 * k)
+                - 2 * Math.cos(3 * k)
+                - Math.cos(4 * k);
+        }
+
+        // Generate heart coordinates
+        function generateHeart() {
+            points = [];
+
+            const totalPoints = 1200;
+
+            for (let i = 0; i < totalPoints; i++) {
+                const angle = (i / totalPoints) * Math.PI * 2;
+
+                points.push({
+                    x: heartX(angle) * scale,
+                    y: -heartY(angle) * scale
+                });
+            }
+
+            progress = 0;
+        }
+
+        // Draw glowing heart
+        function drawHeart() {
+            ctx.clearRect(0, 0, width, height);
+
+            const visiblePoints = Math.floor(progress);
+
+            ctx.save();
+            ctx.translate(centerX, centerY);
+
+            // Red glowing heart lines
+            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = "#ff1744";
+            ctx.shadowColor = "#ff003c";
+            ctx.shadowBlur = 10;
+
+            for (let i = 0; i < visiblePoints; i++) {
+                const point = points[i];
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.lineTo(point.x, point.y);
+                ctx.stroke();
+            }
+
+            // Draw the heart outline
+            if (visiblePoints > 1) {
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+
+                for (let i = 1; i < visiblePoints; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+
+                ctx.strokeStyle = "#ff4569";
+                ctx.lineWidth = 2;
+                ctx.shadowBlur = 20;
+                ctx.stroke();
+            }
+
+            // Glowing center point
+            ctx.beginPath();
+            ctx.arc(0, 0, 3, 0, Math.PI * 2);
+            ctx.fillStyle = "#ff1744";
+            ctx.shadowBlur = 25;
+            ctx.fill();
+
+            ctx.restore();
+
+            // Animation progress
+            if (progress < points.length) {
+                progress += 5;
+            } else {
+                // Keep the completed heart visible
+                progress = points.length;
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            drawHeart();
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener("resize", resizeCanvas);
+
+        resizeCanvas();
+        animate();
+    </script>
+
+</body>
+</html>
